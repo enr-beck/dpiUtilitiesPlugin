@@ -27,7 +27,7 @@ function dpi_cdn_use_stylesheet($css, $position = '', $options = array()) {
  * @param array $options
  */
 function dpi_cdn_use_javascript($js, $position = '', $options = array()) {
-  $host = sfConfig::get('dpi_cdn_host_stylesheet', null);
+  $host = sfConfig::get('dpi_cdn_host_javascript', null);
   if (!$host) {
     $host = sfConfig::get('dpi_cdn_host_common', null);
   }
