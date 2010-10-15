@@ -14,7 +14,7 @@ function dpi_cdn_use_stylesheet($css, $position = '', $options = array()) {
 
   if ($host) {
     $secure = sfContext::getInstance()->getResponse()->isSecure() ? 'https://' : 'http://';
-    $js = $secure . $host . $js;
+    $css = $secure . $host . $css;
   }
 
   use_stylesheet($css, $position, $options);
