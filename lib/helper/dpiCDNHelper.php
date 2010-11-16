@@ -37,7 +37,7 @@ function dpi_cdn_use_javascript($js, $position = '', $options = array()) {
     $js = $secure . $host . $js;
   }
 
-  use_stylesheet($js, $position, $options);
+  use_javascript($js, $position, $options);
 }
 
 /**
