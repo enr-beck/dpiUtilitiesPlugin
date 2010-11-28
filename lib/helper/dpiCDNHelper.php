@@ -13,8 +13,12 @@ function dpi_cdn_use_stylesheet($css, $position = '', $options = array()) {
   }
 
   if ($host) {
-    $secure = sfContext::getInstance()->getResponse()->isSecure() ? 'https://' : 'http://';
-    $css = $secure . $host . $css;
+    $prefix = 'http://';
+    $secure = sfContext::getInstance()->getResponse()->isSecure();
+    if (sfConfig::get('dpi_cdn_host_ssl', false) && $secure) {
+      $prefix = 'https://';
+    }
+    $css = $prefix . $host . $css;
   }
 
   use_stylesheet($css, $position, $options);
@@ -33,8 +37,12 @@ function dpi_cdn_use_javascript($js, $position = '', $options = array()) {
   }
 
   if ($host) {
-    $secure = sfContext::getInstance()->getResponse()->isSecure() ? 'https://' : 'http://';
-    $js = $secure . $host . $js;
+    $prefix = 'http://';
+    $secure = sfContext::getInstance()->getResponse()->isSecure();
+    if (sfConfig::get('dpi_cdn_host_ssl', false) && $secure) {
+      $prefix = 'https://';
+    }
+    $js = $prefix . $host . $js;
   }
 
   use_javascript($js, $position, $options);
@@ -53,8 +61,12 @@ function dpi_cdn_image_tag($source, $options = array()) {
   }
 
   if ($host) {
-    $secure = sfContext::getInstance()->getResponse()->isSecure() ? 'https://' : 'http://';
-    $source = $secure . $host . $source;
+    $prefix = 'http://';
+    $secure = sfContext::getInstance()->getResponse()->isSecure();
+    if (sfConfig::get('dpi_cdn_host_ssl', false) && $secure) {
+      $prefix = 'https://';
+    }
+    $source = $prefix . $host . $source;
   }
 
   return image_tag($source, $options);
