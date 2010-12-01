@@ -31,7 +31,7 @@ class dpiUtilities {
    * @param boolean $keep_letter_case
    * @return string
    */
-  static public function slugify($string, $keep_letter_case = true) {
+  static public function slugify($string, $keep_letter_case = false) {
     $characters = array(
         'ь' => ' ',
         'ъ' => ' ',
@@ -306,11 +306,116 @@ class dpiUtilities {
     $string = preg_replace('/\-$/', '', $string);
     $string = preg_replace('/^\-/', '', $string);
 
-    if(!$keep_letter_case) {
+    if (!$keep_letter_case) {
       $string = strtolower($string);
     }
 
     return $string;
+  }
+
+  /**
+   *
+   * @param string $subject
+   * @return string
+   */
+  static public function HtmlToBBCodeParser($subject) {
+    $flags = PREG_SET_ORDER;
+
+    // transform html string from multi-line to single-line
+    $subject_array = explode(PHP_EOL, $subject);
+    $subject = '';
+    foreach ($subject_array as $line) {
+      $subject .= trim($line);
+    }
+
+    echo '<pre>';
+    /**
+     * find all <a> tags
+     */
+    $pattern = '/<a(.*?)>(.*?)<\/(.*?)a>/';
+    preg_match_all($pattern, $subject, $matchesarray, $flags);
+    foreach ($matchesarray as $match) {
+      $attributes = trim($match[1]);
+      preg_match_all('/(\w+)=(?:["]?([^">=]*)["]?)/', $attributes, $results, $flags);
+      $values = array();
+      foreach ($results as $attr) {
+        $values[$attr[1]] = $attr[2];
+      }
+      #print_r($match);
+      $subject = str_replace($match[0], '[url ' . $values['href'] . (isset($values['title']) ? ';' . $values['title'] : '') . ']' . $match[2] . '[/url]', $subject);
+    }
+    unset($matchesarray);
+
+    /**
+     * find all <img> tags
+     */
+    $pattern = '/<img(.*?)>/';
+    preg_match_all($pattern, $subject, $matchesarray, $flags);
+    foreach ($matchesarray as $match) {
+      print_r($match);
+      $attributes = trim($match[1]);
+      $values = array();
+      preg_match_all('/(\w+)=(?:["]?([^">=]*)["]?)/', $attributes, $results, $flags);
+      foreach ($results as $attr) {
+        $values[$attr[1]] = $attr[2];
+      }
+      $subject = str_replace($match[0], '[img ' . $values['src'] . ']' . (strlen(trim($values['alt'])) ? $values['alt'] : $values['title']) . '[/img]', $subject);
+    }
+    unset($matchesarray);
+
+    /**
+     * find script elements
+     */
+    $pattern = '/<script(.*?)>(.*?)<\/script>/';
+    $subject = preg_replace($pattern, '[script$1]$2[/script]', $subject);
+
+    /**
+     * find all list elements
+     */
+    $pattern = '/<ul(.*?)>(.*?)<\/ul>/';
+    $subject = preg_replace($pattern, '[list]' . PHP_EOL . '$2[/list]' . PHP_EOL, $subject);
+    $pattern = '/<ol(.*?)>(.*?)<\/ol>/';
+    $subject = preg_replace($pattern, '[list=1]' . PHP_EOL . '$2[/list]' . PHP_EOL, $subject);
+    $pattern = '/<li(.*?)>(.*?)<\/li>/';
+    $subject = preg_replace($pattern, '[*]$2[/*]' . PHP_EOL, $subject);
+
+    /**
+     * find all <i> <em> <u> <strong> <b> <del> tags
+     */
+    $pattern = '/<i(.*?)>(.*?)<\/i>/';
+    $subject = preg_replace($pattern, '[i]$2[/i]', $subject);
+    $pattern = '/<em(.*?)>(.*?)<\/em>/';
+    $subject = preg_replace($pattern, '[i]$2[/i]', $subject);
+    $pattern = '/<u(.*?)>(.*?)<\/u>/';
+    $subject = preg_replace($pattern, '[u]$2[/u]', $subject);
+    $pattern = '/<strong(.*?)>(.*?)<\/strong>/';
+    $subject = preg_replace($pattern, '[b]$2[/b]', $subject);
+    $pattern = '/<b(.*?)>(.*?)<\/b>/';
+    $subject = preg_replace($pattern, '[b]$2[/b]', $subject);
+    $pattern = '/<center(.*?)>(.*?)<\/center>/';
+    $subject = preg_replace($pattern, '[center]$2[/center]', $subject);
+
+    /**
+     * find all <p> <br> tags
+     */
+    $pattern = '/<p(.*?)>(.*?)<\/(.*?)p>/';
+    preg_match_all($pattern, $subject, $matches);
+    $subject = preg_replace($pattern, '$2' . PHP_EOL . PHP_EOL, $subject);
+    $pattern = '/<br(.*?)>/';
+    $subject = preg_replace($pattern, PHP_EOL, $subject);
+
+    echo '</pre>';
+
+    return $subject;
+  }
+
+  /**
+   *
+   * @param string $subject
+   * @return string
+   */
+  static public function BBCodeToHtmlParser($subject) {
+    return $subject;
   }
 
 }
