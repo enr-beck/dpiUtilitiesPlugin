@@ -328,7 +328,6 @@ class dpiUtilities {
       $subject .= trim($line);
     }
 
-    echo '<pre>';
     /**
      * find all <a> tags
      */
@@ -341,7 +340,6 @@ class dpiUtilities {
       foreach ($results as $attr) {
         $values[$attr[1]] = $attr[2];
       }
-      #print_r($match);
       $subject = str_replace($match[0], '[url ' . $values['href'] . (isset($values['title']) ? ';' . $values['title'] : '') . ']' . $match[2] . '[/url]', $subject);
     }
     unset($matchesarray);
@@ -352,7 +350,6 @@ class dpiUtilities {
     $pattern = '/<img(.*?)>/';
     preg_match_all($pattern, $subject, $matchesarray, $flags);
     foreach ($matchesarray as $match) {
-      print_r($match);
       $attributes = trim($match[1]);
       $values = array();
       preg_match_all('/(\w+)=(?:["]?([^">=]*)["]?)/', $attributes, $results, $flags);
@@ -399,12 +396,9 @@ class dpiUtilities {
      * find all <p> <br> tags
      */
     $pattern = '/<p(.*?)>(.*?)<\/(.*?)p>/';
-    preg_match_all($pattern, $subject, $matches);
     $subject = preg_replace($pattern, '$2' . PHP_EOL . PHP_EOL, $subject);
     $pattern = '/<br(.*?)>/';
     $subject = preg_replace($pattern, PHP_EOL, $subject);
-
-    echo '</pre>';
 
     return $subject;
   }
