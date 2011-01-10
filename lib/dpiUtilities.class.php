@@ -313,24 +313,4 @@ class dpiUtilities {
     return $string;
   }
 
-  /**
-   *
-   * @param string $subject
-   * @return string
-   */
-  static public function HtmlToBBCodeParser($subject) {
-
-    return $subject;
-  }
-
-  /**
-   *
-   * @param string $subject
-   * @return string
-   */
-  static public function BBCodeToHtmlParser($subject) {
-
-    return $subject;
-  }
-
 }
