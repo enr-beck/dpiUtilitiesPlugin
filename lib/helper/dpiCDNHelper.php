@@ -25,6 +25,19 @@ function dpi_cdn_use_stylesheet($css, $position = '', $options = array()) {
 }
 
 /**
+ * Adds stylesheets from the supplied form to the response object.
+ *
+ * @param sfForm $form
+ */
+function dpi_cdn_use_stylesheets_for_form(sfForm $form)
+{
+  foreach ($form->getStylesheets() as $file => $media)
+  {
+    dpi_cdn_use_stylesheet($file, '', array('media' => $media));
+  }
+}
+
+/**
  *
  * @param string $js
  * @param string $position
@@ -46,6 +59,19 @@ function dpi_cdn_use_javascript($js, $position = '', $options = array()) {
   }
 
   use_javascript($js, $position, $options);
+}
+
+/**
+ * Adds javascripts from the supplied form to the response object.
+ *
+ * @param sfForm $form
+ */
+function dpi_cdn_use_javascripts_for_form(sfForm $form)
+{
+  foreach ($form->getJavascripts() as $file)
+  {
+    dpi_cdn_use_javascript($file);
+  }
 }
 
 /**
