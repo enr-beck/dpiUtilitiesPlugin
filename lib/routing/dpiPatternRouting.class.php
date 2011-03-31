@@ -12,7 +12,7 @@ class dpiPatternRouting extends sfPatternRouting {
    */
   public function initialize(sfEventDispatcher $dispatcher, sfCache $cache = null, $options = array()) {
     if (isset($options['prefix'])) {
-      $options['contenxt']['prefix'] = $options['prefix'];
+      $options['context']['prefix'] = $options['prefix'];
     } else {
       $options['context']['prefix'] = '';
     }
