@@ -2,6 +2,7 @@
 class dpiMemcacheSingletonCache extends sfMemcacheCache
 {
   /**
+   * initialize dpiMemcache
    *
    * @see sfMemcacheCache#initialize()
    */
@@ -15,6 +16,7 @@ class dpiMemcacheSingletonCache extends sfMemcacheCache
     $memcache = dpiMemcache::getInstance();
 
     $options['memcache'] = $memcache;
+
     parent::initialize($options);
   }
 }

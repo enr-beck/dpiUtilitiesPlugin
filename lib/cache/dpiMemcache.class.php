@@ -3,21 +3,32 @@ class dpiMemcache extends Memcache
 {
   static private $instance = null;
 
+  /**
+   * "hidden" constructor for use as singleton
+   */
   private function  __construct()
   {
     $this->initialize();
   }
 
+  /**
+   * Get the instance of dpiMemcache
+   *
+   * @return dpiMemcache
+   */
   static public function getInstance()
   {
     if (!self::$instance)
     {
-      self::$instance = new dpiMemcache();
+      self::$instance = new self();
     }
 
     return self::$instance;
   }
 
+  /**
+   * get memcache option from app.yml & initialize memcache server
+   */
   private function initialize()
   {
     $this->options = sfConfig::get('app_memcache', array());
@@ -43,6 +54,14 @@ class dpiMemcache extends Memcache
     }
   }
 
+  /**
+   * get option value
+   *
+   * @param string $name
+   * @param mixed $default
+   * 
+   * @return mixed
+   */
   protected function getOption($name, $default = null)
   {
     return isset($this->options[$name]) ? $this->options[$name] : $default;
