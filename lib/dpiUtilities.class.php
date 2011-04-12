@@ -301,11 +301,11 @@ class dpiUtilities {
 
     $string = strtr($string, $characters);
 
+    $string = preg_replace('/[^(\x20-\x7F)]*/','', $string);
     $string = preg_replace('/\W/', ' ', $string);
     $string = preg_replace('/\ +/', '-', $string);
     $string = preg_replace('/\-$/', '', $string);
     $string = preg_replace('/^\-/', '', $string);
-    $string = preg_replace('/[^(\x20-\x7F)]*/','', $string);
 
     if (!$keep_letter_case) {
       $string = strtolower($string);
