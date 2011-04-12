@@ -305,6 +305,7 @@ class dpiUtilities {
     $string = preg_replace('/\ +/', '-', $string);
     $string = preg_replace('/\-$/', '', $string);
     $string = preg_replace('/^\-/', '', $string);
+    $string = preg_replace('/[^(\x20-\x7F)]*/','', $string);
 
     if (!$keep_letter_case) {
       $string = strtolower($string);
