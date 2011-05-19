@@ -8,6 +8,8 @@ class DpiBehaviorSluggable extends Behavior
         'keep_letter_case'  => 'false',
         'separator'         => '-',
         'permanent'         => 'false',
+        'is_i18n'           => 'false',
+        'i18n_column'       => 'culture',
     );
 
     /**
@@ -34,6 +36,10 @@ class DpiBehaviorSluggable extends Behavior
             $unique = new Unique($this->getColumnForParameter('slug_column'));
             $unique->setName($table->getCommonName() . '_slug');
             $unique->addColumn($table->getColumn($this->getParameter('slug_column')));
+            if ($this->getParameter('is_i18n') == 'true')
+            {
+              $unique->addColumn($table->getColumn($this->getParameter('i18n_column')));
+            }
             $table->addUnique($unique);
         }
     }
@@ -69,16 +75,16 @@ class DpiBehaviorSluggable extends Behavior
         $const = $builder->getColumnConstant($this->getColumnForParameter('slug_column'));
         $script = "
 if (\$this->isColumnModified($const) && \$this->{$this->getColumnGetter()}()) {
-	\$this->{$this->getColumnSetter()}(\$this->makeSlugUnique(\$this->{$this->getColumnGetter()}()));";
+  \$this->{$this->getColumnSetter()}(\$this->makeSlugUnique(\$this->{$this->getColumnGetter()}()));";
         if ($this->getParameter('permanent') == 'true') {
             $script .= "
 } elseif (!\$this->{$this->getColumnGetter()}()) {
-	\$this->{$this->getColumnSetter()}(\$this->createSlug());
+  \$this->{$this->getColumnSetter()}(\$this->createSlug());
 }";
         } else {
             $script .= "
 } else {
-	\$this->{$this->getColumnSetter()}(\$this->createSlug());
+  \$this->{$this->getColumnSetter()}(\$this->createSlug());
 }";
         }
 
@@ -155,7 +161,7 @@ protected function createSlug()
 
     protected function addCreateRawSlug(&$script)
     {
-        $pattern = $this->getParameter('slug_pattern');
+//        $pattern = $this->getParameter('slug_pattern');
         $script .= "
 /**
  * Create the slug from the appropriate columns
@@ -178,17 +184,17 @@ protected function createRawSlug()
 /**
  * Make sure the slug is short enough to accomodate the column size
  *
- * @param	string \$slug			the slug to check
+ * @param string \$slug     the slug to check
  *
- * @return string						the truncated slug
+ * @return string           the truncated slug
  */
 protected static function limitSlugSize(\$slug, \$incrementReservedSpace = 3)
 {
-	// check length, as suffix could put it over maximum
-	if (strlen(\$slug) > ($size - \$incrementReservedSpace)) {
-		\$slug = substr(\$slug, 0, $size - \$incrementReservedSpace);
-	}
-	return \$slug;
+  // check length, as suffix could put it over maximum
+  if (strlen(\$slug) > ($size - \$incrementReservedSpace)) {
+    \$slug = substr(\$slug, 0, $size - \$incrementReservedSpace);
+  }
+  return \$slug;
 }
 ";
     }
@@ -200,31 +206,36 @@ protected static function limitSlugSize(\$slug, \$incrementReservedSpace = 3)
 /**
  * Get the slug, ensuring its uniqueness
  *
- * @param	string \$slug			the slug to check
- * @param	string \$separator the separator used by slug
- * @return string						the unique slug
+ * @param string \$slug     the slug to check
+ * @param string \$separator the separator used by slug
+ * @return string           the unique slug
  */
 protected function makeSlugUnique(\$slug, \$separator = '" . $this->getParameter('separator') ."', \$increment = 0)
 {
-	\$slug2 = empty(\$increment) ? \$slug : \$slug . \$separator . \$increment;
-	\$slugAlreadyExists = " . $this->builder->getStubQueryBuilder()->getClassname() . "::create()
-		->filterBySlug(\$slug2)
-		->prune(\$this)";
-		// watch out: some of the columns may be hidden by the soft_delete behavior
-		if ($this->table->hasBehavior('soft_delete')) {
-                    $script .= "
-		->includeDeleted()";
-		}
-		$script .= "
-		->count();
-	if (\$slugAlreadyExists)
-        {
-		return \$this->makeSlugUnique(\$slug, \$separator, ++\$increment);
-	}
-        else
-        {
-		return \$slug2;
-	}
+  \$slug2 = empty(\$increment) ? \$slug : \$slug . \$separator . \$increment;
+  \$slugAlreadyExists = " . $this->builder->getStubQueryBuilder()->getClassname() . "::create()
+    ->filterBySlug(\$slug2)";
+        if ($this->getParameter('is_i18n') == 'true') {
+          $script .= "
+    ->filterBy" . $this->getColumnForParameter('i18n_column')->getPhpName() . "(\$this->get" . $this->getColumnForParameter('i18n_column')->getPhpName() . "())";
+        }
+        $script .= "
+    ->prune(\$this)";
+        // watch out: some of the columns may be hidden by the soft_delete behavior
+        if ($this->table->hasBehavior('soft_delete')) {
+          $script .= "
+    ->includeDeleted()";
+    }
+        $script .= "
+    ->count();
+  if (\$slugAlreadyExists)
+  {
+    return \$this->makeSlugUnique(\$slug, \$separator, ++\$increment);
+  }
+  else
+  {
+    return \$slug2;
+  }
 }
 ";
     }
@@ -253,7 +264,7 @@ protected function makeSlugUnique(\$slug, \$separator = '" . $this->getParameter
  */
 public function filterBySlug(\$slug)
 {
-	return \$this->addUsingAlias(" . $this->builder->getColumnConstant($this->getColumnForParameter('slug_column')) . ", \$slug, Criteria::EQUAL);
+  return \$this->addUsingAlias(" . $this->builder->getColumnConstant($this->getColumnForParameter('slug_column')) . ", \$slug, Criteria::EQUAL);
 }
 ";
     }
@@ -271,7 +282,7 @@ public function filterBySlug(\$slug)
  */
 public function findOneBySlug(\$slug, \$con = null)
 {
-	return \$this->filterBySlug(\$slug)->findOne(\$con);
+  return \$this->filterBySlug(\$slug)->findOne(\$con);
 }
 ";
     }
